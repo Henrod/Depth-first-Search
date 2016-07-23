@@ -3,48 +3,61 @@ import java.util.*;
 public class Graph {
 
 	static int time;
-	static enum Color {
-		WHITE, GRAY, BLACK;
+
+	private Vertex[] vertices;
+	private HashMap<Vertex, List<Vertex>> adj;
+
+	public Graph (int N, List<Edge> edges) {
+		vertices = new Vertex[N];
+		adj = new HashMap<>();
+		for (int i = 1; i <= N; i++) {
+			vertices[i - 1] = new Vertex(i);
+			adj.put(vertices[i - 1], new LinkedList<>());
+		}
+
+		for (Edge e : edges) {
+			adj.get(vertices[e.u]).add(vertices[e.v]);
+		}
 	}
 
-	List<Vertex> vertices;
-	HashMap<Vertex, List<Vertex>> adj;
-
-	public Graph (List<Vertex> vertices, HashMap<Vertex, List<Vertex>> adj) {
-		this.vertices = vertices;
-		this.adj = adj;
-	}
-
-	public List<Vertex> DFS () {
-		for (Vertex v : vertices) {
-			v.color = Color.WHITE;
+	private static void initialize(Graph graph) {
+		for (Vertex v : graph.vertices) {
+			v.visited = false;
 			v.parent = null;
 		}
+	}
 
-		time = 0;
-
-		for (Vertex v : vertices) {
-			if (v.color == Color.WHITE)
-				DFS_Visit(v);
-		}
-
+	public Vertex[] vertices() {
 		return vertices;
 	}
 
-	private void DFS_Visit (Vertex v) {
-		time += 1;
-		v.d = time;
-		v.color = Color.GRAY;
+	public List<Vertex> adj(Vertex v) {
+		return adj.get(v);
+	}
 
-		for (Vertex u : adj.get(v)) {
-			if (u.color == Color.WHITE) {
-				u.parent = v;
-				DFS_Visit(u);
+	public static Vertex[] DFS (Graph graph) {
+		initialize(graph);
+		int time = 0;
+
+		for (Vertex v : graph.vertices()) {
+			if (!v.visited) {
+				Stack stack = new Stack(graph.vertices.length);
+				stack.push(v);
+
+				while (!stack.isEmpty()) {
+					Vertex u = stack.pop();
+					u.visited = true;
+
+					for (Vertex x : graph.adj(u)) {
+						if (!x.visited) {
+							stack.push(x);
+							x.parent = u;
+						}
+					}
+				}
 			}
 		}
 
-		v.color = Color.BLACK;
-		time += 1;
-		v.f = time;
+		return graph.vertices();
 	}
 }

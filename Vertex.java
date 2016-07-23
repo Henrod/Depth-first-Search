@@ -1,7 +1,6 @@
 public class Vertex {
-	Graph.Color color;
+	boolean visited;;
 	Vertex parent;
-	int d, f;
 	int index;
 
 	public Vertex (int index) {
